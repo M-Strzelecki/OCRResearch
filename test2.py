@@ -127,3 +127,5 @@ angle = re.search('(?<=Rotate: )\d+', osd).group(0)
 # script = re.search('(?<=Script: )\d+', osd).group(0)
 print("angle: ", angle)
 # print("script: ", script)
+
+## testing git
