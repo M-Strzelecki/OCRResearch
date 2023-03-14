@@ -46,6 +46,12 @@ def deskew(image):
 def match_template(image, template):
     return cv2.matchTemplate(image, template, cv2.TM_CCOEFF_NORMED)
 
+#function to resize images
+def image_resize(image):
+    print('Original Size: ',image.shape)
+    image = cv2.resize(image,(400,400))
+    print('New Size: ', image.shape)
+    return image
 
 
 img = cv2.imread('sample_nutrilabel.jpg')
@@ -127,7 +133,3 @@ angle = re.search('(?<=Rotate: )\d+', osd).group(0)
 # script = re.search('(?<=Script: )\d+', osd).group(0)
 print("angle: ", angle)
 # print("script: ", script)
-
-## testing git
-## testing 2
-#finall test
