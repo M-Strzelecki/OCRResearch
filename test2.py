@@ -69,6 +69,7 @@ image = cv2.imread('sample_nutrilabel_300.jpg')
 print(image.shape)
 image_res = cv2.resize(image,(400,400))
 print(image_res.shape)
+
 image2 = cv2.imread('sample_nutrilabel.jpg')
 print(image2.shape)
 gray2 = get_grayscale(image2)
@@ -117,14 +118,6 @@ for i in range(thresh_boxes):
             thresh = cv2.rectangle(thresh, (x, y), (x + w, y + h), (0, 255, 0), 2)
 cv2.imshow('img', thresh)
 cv2.waitKey(0)
-
-opening = opening(gray)
-# cv2.imshow('img', opening)
-# cv2.waitKey(0)
-
-canny = canny(gray)
-# cv2.imshow('img', canny)
-# cv2.waitKey(0)
 
 #Detect orientation
 rotated = cv2.imread('sample_nutrilabel_rotated.jpg')
