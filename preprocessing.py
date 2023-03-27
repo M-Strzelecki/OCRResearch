@@ -11,18 +11,16 @@ import os
 def get_grayscale(image):
     return cv.cvtColor(image, cv.COLOR_BGR2GRAY)
 
-
-# function to remove noise from image
-def remove_noise(image):
-    return cv.medianBlur(image, 5)
-
-
-# function to find edges, convert to binary image
 def thresholding(image):
-    return cv.threshold(image, 0, 255, cv.THRESH_BINARY + cv.THRESH_OTSU)[1]
+    # Apply binary thresholding using Otsu's method to the input image and return the thresholded image
+    # The parameters 0 and 255 set the pixel intensity values for the black and white pixels, respectively
+    # cv.THRESH_BINARY specifies that a binary thresholding is used
+    # cv.THRESH_OTSU indicates that Otsu's method is used to determine the threshold value automatically
+    thresholded_image = cv.threshold(image, 0, 255, cv.THRESH_BINARY + cv.THRESH_OTSU)[1]
 
-def adaptgausthresh(image):
-    return cv.adaptiveThreshold(image,255,cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY,11,2)
+    # Return the thresholded image
+    return thresholded_image
+
 
 # function to deskew the image
 def deskew(image):
@@ -62,39 +60,70 @@ def noise_removal(image):
     image = cv.medianBlur(image, 3)
     return image
 
+
 def boundingboxes(image):
+    # Define custom Tesseract configuration for recognizing text
     custom_config = r'--oem 3 --psm 11'
 
+    # Use Tesseract to get text data from the input image
     details = pytesseract.image_to_data(image, output_type=Output.DICT, config=custom_config, lang='eng')
 
+    # Print keys of the dictionary returned by Tesseract
     print(details.keys())
 
+    # Get total number of text boxes detected by Tesseract
     total_boxes = len(details['text'])
 
+    # Loop through each text box and draw a bounding box around it if the confidence level is high enough
     for sequence_number in range(total_boxes):
-        if int(details['conf'][sequence_number]) > 30:
+        if int(details['conf'][sequence_number]) > 30:  # set minimum confidence level to 30
+            # Extract the bounding box coordinates from the dictionary returned by Tesseract
             (x, y, w, h) = (details['left'][sequence_number], details['top'][sequence_number],
                             details['width'][sequence_number], details['height'][sequence_number])
-            image = cv.rectangle(image, (x, y), (x + w, y + h),
-                               (0, 255, 0), 2)
+            # Draw a rectangle around the text box on the input image using OpenCV
+            image = cv.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
+    # Display the image with bounding boxes drawn
     cv.imshow('captured data', image)
     cv.waitKey(0)
     cv.destroyAllWindows()
+
+    # Return the dictionary containing text data and bounding box coordinates
     return details
+
+
 def returnoutput(details):
+    # Initialize empty list to hold the parsed text
     parse_text = []
+
+    # Initialize empty list to hold words within each line of text
     word_list = []
+
+    # Initialize variable to hold the last word seen
     last_word = ''
 
+    # Iterate through each word in the text of the details dictionary
     for word in details['text']:
+
+        # If the current word is not an empty string, append it to the current line of text
         if word != '':
             word_list.append(word)
+
+            # Update the last word seen to be the current word
             last_word = word
+
+        # If the current word is an empty string and the last word seen was not empty,
+        # or if the current word is the last word in the text, then the current line of text is complete
+        # and can be added to the parsed text list
         if (last_word != '' and word == '') or (word == details['text'][-1]):
             parse_text.append(word_list)
+
+            # Reset the word list to empty for the next line of text
             word_list = []
+
+    # Print the parsed text list
     print(parse_text)
+
 
 "-------------------------------------------------------------------"
 

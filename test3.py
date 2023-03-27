@@ -19,9 +19,18 @@ cv.imshow("Original Image", image)
 
 
 # Apply gamma correction to image to reduce light bleeding
+"""
+gamma variable is set to 3, which represents the value of gamma used for gamma correction.
+gamma_table is a NumPy array created using a list comprehension that applies the gamma correction 
+    formula to each pixel value in the range of 0 to 255, and then scales it back to the range of 0 to 255. 
+    This creates a lookup table for gamma correction.
+The astype function is called to cast the pixel values to unsigned 8-bit integers, which is the expected data type for images in OpenCV.
+The cv.LUT function is then used to apply the lookup table to the input image.
+"""
 gamma = 3
 gamma_table = np.array([((i / 255.0) ** gamma) * 255 for i in np.arange(0, 256)]).astype("uint8")
 corrected_image = cv.LUT(image, gamma_table)
+
 cv.imshow('Original Image with Gamma', corrected_image)
 #applying grayscale on gamma image
 gray2 = prep.get_grayscale(corrected_image)
