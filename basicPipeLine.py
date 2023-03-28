@@ -3,7 +3,7 @@ import cv2
 import numpy as np
 import preprocessing as prep
 
-image = cv2.imread("./sample_images/nf37.jpg")
+image = cv2.imread("./sample_images/nf131.jpg")
 image = cv2.resize(image, (400, 400))
 
 gray = cv2.cvtColor(np.array(image), cv2.COLOR_BGR2GRAY)

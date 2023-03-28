@@ -6,7 +6,7 @@ import cv2 as cv
 import os
 
 # importing image
-image = cv.imread("./sample_images/nf157.jpg")
+image = cv.imread("./sample_images/nf54.jpg")
 file_name = os.path.basename("./sample_images/nf157.jpg")
 image_name = os.path.splitext(file_name)[0]
 
