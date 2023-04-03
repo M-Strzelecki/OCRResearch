@@ -8,9 +8,11 @@ def gamma_correction(image, gamma=1.0):
 
     # apply gamma correction to adjust gamma levels
     invGamma = 1.0 / gamma
-    table = np.array([((i / 255.0) ** invGamma) * 255
-                      for i in np.arange(0, 256)]).astype("uint8")
+    table = np.array(
+        [((i / 255.0) ** invGamma) * 255 for i in np.arange(0, 256)]
+    ).astype("uint8")
     return cv2.LUT(image, table)
+
 
 def automatic_gamma_correction(image, percentile=0.1):
     # convert the image to grayscale
@@ -31,9 +33,11 @@ def automatic_gamma_correction(image, percentile=0.1):
 
     # apply gamma correction to adjust gamma levels
     invGamma = 1.0 / gamma
-    table = np.array([((i / 255.0) ** invGamma) * 255
-                      for i in np.arange(0, 256)]).astype("uint8")
+    table = np.array(
+        [((i / 255.0) ** invGamma) * 255 for i in np.arange(0, 256)]
+    ).astype("uint8")
     return cv2.LUT(image, table)
+
 
 def adaptive_gamma_correction(image, block_size=32, gamma=1.0):
     # Convert the image to grayscale
@@ -43,7 +47,7 @@ def adaptive_gamma_correction(image, block_size=32, gamma=1.0):
     blocks = []
     for i in range(0, gray.shape[0], block_size):
         for j in range(0, gray.shape[1], block_size):
-            block = gray[i:i+block_size, j:j+block_size]
+            block = gray[i : i + block_size, j : j + block_size]
             blocks.append(block)
 
     # Calculate the gamma-corrected image by applying adaptive gamma correction to each block
@@ -60,8 +64,9 @@ def adaptive_gamma_correction(image, block_size=32, gamma=1.0):
 
         # Calculate the gamma-corrected lookup table for the block
         inv_gamma = 1.0 / gamma
-        table = np.array([((i / 255.0) ** inv_gamma) * 255
-                          for i in np.arange(0, 256)]).astype("uint8")
+        table = np.array(
+            [((i / 255.0) ** inv_gamma) * 255 for i in np.arange(0, 256)]
+        ).astype("uint8")
 
         # Apply the gamma-corrected lookup table to the block
         gamma_corrected_block = cv2.LUT(block, table)
@@ -75,10 +80,13 @@ def adaptive_gamma_correction(image, block_size=32, gamma=1.0):
     for i in range(0, gray.shape[0], block_size):
         for j in range(0, gray.shape[1], block_size):
             gamma_corrected_block = gamma_corrected_blocks[block_index]
-            gamma_corrected_image[i:i+block_size, j:j+block_size] = gamma_corrected_block
+            gamma_corrected_image[
+                i : i + block_size, j : j + block_size
+            ] = gamma_corrected_block
             block_index += 1
 
     return gamma_corrected_image
+
 
 def adaptive_gamma_correction_with_otsu(image, block_size=32, gamma=1.0):
     # Convert the image to grayscale
@@ -88,14 +96,16 @@ def adaptive_gamma_correction_with_otsu(image, block_size=32, gamma=1.0):
     blocks = []
     for i in range(0, gray.shape[0], block_size):
         for j in range(0, gray.shape[1], block_size):
-            block = gray[i:i+block_size, j:j+block_size]
+            block = gray[i : i + block_size, j : j + block_size]
             blocks.append(block)
 
     # Apply Otsu's thresholding to each block and calculate the gamma-corrected image
     gamma_corrected_blocks = []
     for block in blocks:
         # Apply Otsu's thresholding to the block
-        _, thresholded_block = cv2.threshold(block, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+        _, thresholded_block = cv2.threshold(
+            block, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU
+        )
 
         # Calculate the histogram of the thresholded block
         hist, _ = np.histogram(thresholded_block, bins=256, range=(0, 256))
@@ -108,8 +118,9 @@ def adaptive_gamma_correction_with_otsu(image, block_size=32, gamma=1.0):
 
         # Calculate the gamma-corrected lookup table for the thresholded block
         inv_gamma = 1.0 / gamma
-        table = np.array([((i / 255.0) ** inv_gamma) * 255
-                          for i in np.arange(0, 256)]).astype("uint8")
+        table = np.array(
+            [((i / 255.0) ** inv_gamma) * 255 for i in np.arange(0, 256)]
+        ).astype("uint8")
 
         # Apply the gamma-corrected lookup table to the thresholded block
         gamma_corrected_block = cv2.LUT(thresholded_block, table)
@@ -123,10 +134,13 @@ def adaptive_gamma_correction_with_otsu(image, block_size=32, gamma=1.0):
     for i in range(0, gray.shape[0], block_size):
         for j in range(0, gray.shape[1], block_size):
             gamma_corrected_block = gamma_corrected_blocks[block_index]
-            gamma_corrected_image[i:i+block_size, j:j+block_size] = gamma_corrected_block
+            gamma_corrected_image[
+                i : i + block_size, j : j + block_size
+            ] = gamma_corrected_block
             block_index += 1
 
     return gamma_corrected_image
+
 
 def adaptive_gamma_correction_with_otsu_clarity(image, block_size=64, gamma=1.5):
     # Convert the image to grayscale
@@ -136,14 +150,16 @@ def adaptive_gamma_correction_with_otsu_clarity(image, block_size=64, gamma=1.5)
     blocks = []
     for i in range(0, gray.shape[0], block_size):
         for j in range(0, gray.shape[1], block_size):
-            block = gray[i:i+block_size, j:j+block_size]
+            block = gray[i : i + block_size, j : j + block_size]
             blocks.append(block)
 
     # Apply Otsu's thresholding and morphological opening to each block, and calculate the gamma-corrected image
     gamma_corrected_blocks = []
     for block in blocks:
         # Apply Otsu's thresholding to the block
-        _, thresholded_block = cv2.threshold(block, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+        _, thresholded_block = cv2.threshold(
+            block, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU
+        )
 
         # Apply a morphological opening operation to the thresholded block
         kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
@@ -160,8 +176,9 @@ def adaptive_gamma_correction_with_otsu_clarity(image, block_size=64, gamma=1.5)
 
         # Calculate the gamma-corrected lookup table for the opened block
         inv_gamma = 1.0 / gamma
-        table = np.array([((i / 255.0) ** inv_gamma) * 255
-                          for i in np.arange(0, 256)]).astype("uint8")
+        table = np.array(
+            [((i / 255.0) ** inv_gamma) * 255 for i in np.arange(0, 256)]
+        ).astype("uint8")
 
         # Apply the gamma-corrected lookup table to the opened block
         gamma_corrected_block = cv2.LUT(opened_block, table)
@@ -175,12 +192,16 @@ def adaptive_gamma_correction_with_otsu_clarity(image, block_size=64, gamma=1.5)
     for i in range(0, gray.shape[0], block_size):
         for j in range(0, gray.shape[1], block_size):
             gamma_corrected_block = gamma_corrected_blocks[block_index]
-            gamma_corrected_image[i:i+block_size, j:j+block_size] = gamma_corrected_block
+            gamma_corrected_image[
+                i : i + block_size, j : j + block_size
+            ] = gamma_corrected_block
             block_index += 1
 
     return gamma_corrected_image
+
+
 # Load the image
-img = cv2.imread('./sample_images/nf131.jpg')
+img = cv2.imread("./sample_images/nf131.jpg")
 
 # # Calculate the mean brightness of the image
 # gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -212,22 +233,21 @@ img = cv2.imread('./sample_images/nf131.jpg')
 # cv2.imshow("New Gray Image", gray_image)
 
 adapt_otsu = adaptive_gamma_correction_with_otsu(img)
-cv2.imshow('New Adapt with Otsu', adapt_otsu)
+cv2.imshow("New Adapt with Otsu", adapt_otsu)
 
 adapt_otsu_clarity = adaptive_gamma_correction_with_otsu_clarity(img)
-cv2.imshow('New Adapt with Otsu+Clarity', adapt_otsu_clarity)
+cv2.imshow("New Adapt with Otsu+Clarity", adapt_otsu_clarity)
 
 auto_gama = automatic_gamma_correction(img)
-cv2.imshow('Auto Gamma Corrected Image', auto_gama)
+cv2.imshow("Auto Gamma Corrected Image", auto_gama)
 auto_gama_gray = cv2.cvtColor(auto_gama, cv2.COLOR_BGR2GRAY)
 thresh2 = cv2.threshold(auto_gama_gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
-cv2.imshow('Auto Threshed Image', thresh2)
+cv2.imshow("Auto Threshed Image", thresh2)
 
 adap_gama = adaptive_gamma_correction(img)
 # adap_gama_gray = cv2.cvtColor(adap_gama, cv2.COLOR_BGR2GRAY)
 thresh2 = cv2.threshold(adap_gama, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
-cv2.imshow('Adapt Threshed Image', thresh2)
+cv2.imshow("Adapt Threshed Image", thresh2)
 
 cv2.waitKey(0)
 cv2.destroyAllWindows()
-
