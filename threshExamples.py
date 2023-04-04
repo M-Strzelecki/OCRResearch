@@ -23,7 +23,7 @@ ret, thresh2 = cv2.threshold(img, 120, 255, cv2.THRESH_BINARY_INV)
 ret, thresh3 = cv2.threshold(img, 120, 255, cv2.THRESH_TRUNC)
 ret, thresh4 = cv2.threshold(img, 120, 255, cv2.THRESH_TOZERO)
 ret, thresh5 = cv2.threshold(img, 120, 255, cv2.THRESH_TOZERO_INV)
-ret, thresh6 = cv2.threshold(img, 120, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+ret, thresh6 = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 
 # the window showing output images
 # with the corresponding thresholding

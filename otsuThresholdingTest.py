@@ -44,8 +44,8 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 # Read the image
-img = cv2.imread("./sample_images/nf47.jpg", 0)
-
+img = cv2.imread("./sample_images/nf157.jpg", 0)
+img2 = cv2.imread("./sample_images/nf37.jpg", 0)
 # Global thresholding
 ret1, th1 = cv2.threshold(img, 120, 255, cv2.THRESH_BINARY)
 
@@ -57,31 +57,33 @@ blur = cv2.GaussianBlur(img, (5, 5), 0)
 ret3, th3 = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 
 # Use the Otsu's function
-ret4 = Otsu_function(img, blur)
+# ret4 = Otsu_function(img, blur)
+ret4, th4 = cv2.threshold(img2, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 # Print the returned values
 print("ret1: {}, ret2: {}, ret3: {}, ret4: {}".format(ret1, ret2, ret3, ret4))
 
 # plot all the images and their histograms
-images = [img, 0, th1, img, 0, th2, blur, 0, th3]
+images = [img, 0, th1, img, 0, th2, img2, 0, th4, blur, 0, th3]
 titles = [
     "Original Noisy Image",
     "Histogram",
-    "Global Thresholding (v=127)",
+    "Global Thresholding",
     "Original Noisy Image",
     "Histogram",
     "Otsu's Thresholding",
-    "Gaussian filtered Image",
+    "Original Noisy Image",
     "Histogram",
-    "Otsu's Thresholding",
+    "Otsu's Thresholding"
 ]
 
 for i in range(3):
     plt.subplot(3, 3, i * 3 + 1), plt.imshow(images[i * 3], "gray")
     plt.title(titles[i * 3]), plt.xticks([]), plt.yticks([])
-    plt.subplot(3, 3, i * 3 + 2), plt.hist(images[i * 3].ravel(), 256)
+    plt.subplot(3, 3, i * 3 + 2), plt.hist(images[i * 3].ravel(), 255)
     plt.title(titles[i * 3 + 1]), plt.xticks([]), plt.yticks([])
     plt.subplot(3, 3, i * 3 + 3), plt.imshow(images[i * 3 + 2], "gray")
     plt.title(titles[i * 3 + 2]), plt.xticks([]), plt.yticks([])
+
 
 # Show the image
 plt.show()
