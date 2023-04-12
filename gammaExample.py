@@ -3,7 +3,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 # Load the image
-img = cv2.imread("./sample_images/nf157.jpg")
+img = cv2.imread("./sample_images/nf131.jpg")
 img = cv2.resize(img, (400, 400))
 
 # Define the gamma value

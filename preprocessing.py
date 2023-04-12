@@ -262,6 +262,44 @@ def process_images(input_folder, output_file):
                 )
 
 
+def process_images_individual(input_folder, output_file):
+    """
+    Processes all images in a folder, extracts nutritional information from them using OCR, and saves the information to a CSV file.
+
+    Args:
+        input_folder (str): The path to the folder containing the input images.
+        output_file (str): The path to the CSV file to which the nutritional information will be saved.
+    """
+
+    # Open the output CSV file and create a CSV writer object.
+    with open(output_file, mode="w", newline="") as csvfile:
+        writer = csv.writer(csvfile)
+
+        # Write the header row to the CSV file.
+        writer.writerow(
+            ["id", "full text"]
+        )
+
+        # Process each file in the input folder.
+        for filename in os.listdir(input_folder):
+            # Only process files with the '.jpg' or '.png' extension.
+            if filename.endswith(".jpg") or filename.endswith(".png"):
+                # Load the image and preprocess it.
+                image_file = os.path.join(input_folder, filename)
+                image = cv.imread(image_file)
+                processed_image = preprocess_image(image)
+
+                # Perform OCR on the preprocessed image and extract the nutritional information.
+                ocr_output = pytesseract.image_to_string(processed_image)
+                pattern = r"\s+"
+                ocr_output = re.sub(pattern,"",ocr_output)
+
+
+                # Write the extracted nutritional information and character count to the CSV file.
+                writer.writerow(
+                    [filename, ocr_output]
+                )
+
 "---------------------Compare CSV---------------------------------"
 
 

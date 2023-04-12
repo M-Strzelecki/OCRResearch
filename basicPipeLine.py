@@ -2,15 +2,25 @@ import pytesseract
 import cv2
 import numpy as np
 import preprocessing as prep
+import re
+from collections import Counter
 
-image = cv2.imread("./sample_images/nf131.jpg")
+image = cv2.imread("./sample_images/nf105.jpg")
 image = cv2.resize(image, (400, 400))
 
 gray = cv2.cvtColor(np.array(image), cv2.COLOR_BGR2GRAY)
+
 thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
 
 text = pytesseract.image_to_string(thresh)
-print(text)
+print(text.lower())
+
+text2 = re.sub("[^a-z0-9.]", "", text.lower())
+print(text2)
+
+counter = Counter(text2)
+
+print(counter)
 import re
 
 # Define regex patterns to match the nutritional information to extract
@@ -58,5 +68,8 @@ print(f'Total number of characters: {character_count}')
 
 input_folder = './sample_images'
 output_file = 'output.csv'
+full_text = 'fulltext.csv'
+
 
 prep.process_images(input_folder, output_file)
+prep.process_images_individual(input_folder, full_text)
