@@ -1,10 +1,12 @@
 import re
 import cv2 as cv
+from matplotlib import pyplot as plt
 import numpy as np
 import pytesseract
 from pytesseract import Output
 import csv
 import os
+from itertools import zip_longest
 
 
 # function to convert image to grayscale
@@ -276,9 +278,7 @@ def process_images_individual(input_folder, output_file):
         writer = csv.writer(csvfile)
 
         # Write the header row to the CSV file.
-        writer.writerow(
-            ["id", "full text"]
-        )
+        writer.writerow(["id", "full text"])
 
         # Process each file in the input folder.
         for filename in os.listdir(input_folder):
@@ -292,13 +292,11 @@ def process_images_individual(input_folder, output_file):
                 # Perform OCR on the preprocessed image and extract the nutritional information.
                 ocr_output = pytesseract.image_to_string(processed_image)
                 pattern = r"\s+"
-                ocr_output = re.sub(pattern,"",ocr_output)
-
+                ocr_output = re.sub(pattern, "", ocr_output)
 
                 # Write the extracted nutritional information and character count to the CSV file.
-                writer.writerow(
-                    [filename, ocr_output]
-                )
+                writer.writerow([filename, ocr_output])
+
 
 "---------------------Compare CSV---------------------------------"
 
@@ -407,3 +405,141 @@ def print_comparison_results(results):
         else:
             print("Accuracy: N/A")
         print()
+
+
+"----------------------------Count Individual Characters-----------------------------------"
+
+
+def count_chars(string):
+    # initialize dictionary to store character counts
+    char_counts = {}
+
+    # iterate over each character in the string
+    for char in string:
+        # check if character is a-z, 0-9 or full stop
+        if char.isalpha() and char.islower():
+            char_counts[char] = char_counts.get(char, 0) + 1
+        elif char.isdigit():
+            char_counts[char] = char_counts.get(char, 0) + 1
+        elif char == ".":
+            char_counts[char] = char_counts.get(char, 0) + 1
+
+    # sort dictionary by key
+    sorted_counts = dict(sorted(char_counts.items()))
+
+    # create formatted string
+    output = ""
+    for char, count in sorted_counts.items():
+        output += f"{char}: {count}\n"
+
+    return output
+
+
+def count_chars_in_file(file_path):
+    # initialize dictionary to store character counts for each row
+    row_char_counts = {}
+
+    # read in CSV file
+    with open(file_path, "r") as csvfile:
+        reader = csv.reader(csvfile)
+        # skip the header row
+        next(reader)
+        # iterate over each line in the file
+        for row in reader:
+            # get the ID value for the row
+            row_id = row[0]
+            # initialize dictionary to store character counts for this row
+            char_counts = {}
+            # iterate over each character in the row
+            for char in "".join(row[1:]).lower():
+                # check if character is a-z, 0-9 or full stop
+                if (
+                    char.isalpha()
+                    and char.islower()
+                    and ord(char) >= ord("a")
+                    and ord(char) <= ord("z")
+                ):
+                    char_counts[char] = char_counts.get(char, 0) + 1
+                elif char.isdigit():
+                    char_counts[char] = char_counts.get(char, 0) + 1
+                elif char == ".":
+                    char_counts[char] = char_counts.get(char, 0) + 1
+            # sort dictionary by key
+            sorted_counts = dict(sorted(char_counts.items()))
+            # create formatted string for this row
+            output = ""
+            for char, count in sorted_counts.items():
+                output += f"{char}: {count}\n"
+            # add formatted string to dictionary with ID as key
+            row_char_counts[row_id] = output
+
+    return row_char_counts
+
+
+def compare_individual_csv_files(file_path_1, file_path_2):
+    # count characters in each file
+    file1_counts = count_chars_in_file(file_path_1)
+    file2_counts = count_chars_in_file(file_path_2)
+
+    # sort row IDs
+    sorted_row_ids = sorted(set(file1_counts.keys()) | set(file2_counts.keys()))
+
+    # compare character counts for each row
+    for row_id in sorted_row_ids:
+        # check if row exists in both files
+        if row_id not in file1_counts.keys():
+            print(f"Row {row_id} does not exist in {file_path_1}")
+            continue
+        if row_id not in file2_counts.keys():
+            print(f"Row {row_id} does not exist in {file_path_2}")
+            continue
+
+        # calculate mean count error for this row
+        counts1 = file1_counts[row_id].splitlines()
+        counts2 = file2_counts[row_id].splitlines()
+        mean_error = sum(
+            abs(int(c1.split(": ")[1]) - int(c2.split(": ")[1]))
+            for c1, c2 in zip(counts1, counts2)
+        ) / len(counts1)
+
+        # compare character counts for this row
+        if file1_counts[row_id] != file2_counts[row_id]:
+            # The mean count error is calculated as the sum of the absolute differences in count for each character, divided by the total number of characters counted.
+            print(
+                f"Row {row_id} has different character counts (mean error: {mean_error}):"
+            )
+            print(f"{file_path_1}:".ljust(20), f"{file_path_2}:")
+            for line1, line2 in zip_longest(counts1, counts2, fillvalue=""):
+                print(line1.ljust(20), line2)
+
+            # plot histograms
+            chars1 = [c.split(":")[0] for c in counts1]
+            chars2 = [c.split(":")[0] for c in counts2]
+            all_chars = sorted(set(chars1) | set(chars2))
+            counts1_dict = dict([c.split(":") for c in counts1])
+            counts2_dict = dict([c.split(":") for c in counts2])
+            counts1_arr = np.array([int(counts1_dict.get(c, 0)) for c in all_chars])
+            counts2_arr = np.array([int(counts2_dict.get(c, 0)) for c in all_chars])
+
+            plt.figure(figsize=(10, 5))
+            plt.bar(all_chars, counts1_arr, label=file_path_1, alpha=0.5)
+            plt.bar(all_chars, counts2_arr, label=file_path_2, alpha=0.5)
+            plt.xticks(all_chars)
+            plt.xlabel("Characters")
+            plt.ylabel("Counts")
+            plt.title(f"Character counts for row {row_id}")
+            plt.legend()
+            plt.show()
+
+        else:
+            print(f"Row {row_id} has identical character counts in both files ")
+
+
+def print_individual_count(results):
+    for row_id, char_counts in results.items():
+        print(f"Row {row_id} character counts:")
+        print(char_counts)
+        print()
+
+
+"------------------------TESTING-----------------------"
