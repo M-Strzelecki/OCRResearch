@@ -1,4 +1,5 @@
 import re
+import pandas as pd
 import cv2 as cv
 from matplotlib import pyplot as plt
 import numpy as np
@@ -7,6 +8,7 @@ from pytesseract import Output
 import csv
 import os
 from itertools import zip_longest
+from sklearn.metrics import mean_absolute_percentage_error, mean_absolute_error
 
 
 # function to convert image to grayscale
@@ -410,6 +412,12 @@ def print_comparison_results(results):
 "----------------------------Count Individual Characters-----------------------------------"
 
 
+def smape(act, forc):
+    return (
+        100 / len(act) * np.sum(2 * np.abs(forc - act) / (np.abs(act) + np.abs(forc)))
+    )
+
+
 def count_chars(string):
     # initialize dictionary to store character counts
     char_counts = {}
@@ -485,6 +493,7 @@ def compare_individual_csv_files(file_path_1, file_path_2):
     sorted_row_ids = sorted(set(file1_counts.keys()) | set(file2_counts.keys()))
 
     # compare character counts for each row
+    smape_values = []
     for row_id in sorted_row_ids:
         # check if row exists in both files
         if row_id not in file1_counts.keys():
@@ -494,19 +503,30 @@ def compare_individual_csv_files(file_path_1, file_path_2):
             print(f"Row {row_id} does not exist in {file_path_2}")
             continue
 
-        # calculate mean count error for this row
+        # calculate mean absolute error (MAE) and symmetric mean absolute percentage error (SMAPE) for this row
         counts1 = file1_counts[row_id].splitlines()
         counts2 = file2_counts[row_id].splitlines()
-        mean_error = sum(
-            abs(int(c1.split(": ")[1]) - int(c2.split(": ")[1]))
-            for c1, c2 in zip(counts1, counts2)
-        ) / len(counts1)
+        counts1_dict = dict([c.split(":") for c in counts1])
+        counts2_dict = dict([c.split(":") for c in counts2])
+        all_chars = sorted(set(counts1_dict.keys()) | set(counts2_dict.keys()))
+        counts1_list = [int(counts1_dict.get(c, 0)) for c in all_chars]
+        counts2_list = [int(counts2_dict.get(c, 0)) for c in all_chars]
+        counts1_arr = np.array([int(counts1_dict.get(c, 0)) for c in all_chars])
+        counts2_arr = np.array([int(counts2_dict.get(c, 0)) for c in all_chars])
+        mae = mean_absolute_error(counts1_list, counts2_list)
+        s_mape = smape(counts1_arr, counts2_arr)
+        smape_values.append(s_mape)
+        # # print(counts1_dict)
+        # print(counts1_arr)
+        # print("---------------------------------")
+        # # print(counts2_dict)
+        # print(counts2_arr)
 
         # compare character counts for this row
         if file1_counts[row_id] != file2_counts[row_id]:
-            # The mean count error is calculated as the sum of the absolute differences in count for each character, divided by the total number of characters counted.
+            print(f"Row {row_id} has different character counts (MAE: {mae}):")
             print(
-                f"Row {row_id} has different character counts (mean error: {mean_error}):"
+                f"Row {row_id} has different character counts (SMAPE: {s_mape:.2f}%):"
             )
             print(f"{file_path_1}:".ljust(20), f"{file_path_2}:")
             for line1, line2 in zip_longest(counts1, counts2, fillvalue=""):
@@ -533,6 +553,10 @@ def compare_individual_csv_files(file_path_1, file_path_2):
 
         else:
             print(f"Row {row_id} has identical character counts in both files ")
+    sum_smape = sum(smape_values)
+    total_smape_elems = len(smape_values)
+    total_smape_avg_score = sum_smape / total_smape_elems
+    print("SMAPE", total_smape_avg_score)
 
 
 def print_individual_count(results):
