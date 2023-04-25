@@ -368,6 +368,7 @@ def compare_csv_files(file1, file2):
 
     # Compare the character counts for each row in both datasets.
     results = []
+    result_avg = []
     for row1, row2 in zip(data1, data2):
         accuracy = None
         if row1["Character Count"] != "N/A" and row2["Character Count"] != "N/A":
@@ -387,6 +388,12 @@ def compare_csv_files(file1, file2):
                 "accuracy": accuracy,
             }
         )
+        result_avg.append(accuracy)
+    total_result = sum(result_avg)
+    total_result_elems = len(result_avg)
+    total_result_avg_score = total_result / total_result_elems
+    print(f"Total Accuracy Average: {total_result_avg_score:.2f}%")
+
 
     return results
 
@@ -532,31 +539,31 @@ def compare_individual_csv_files(file_path_1, file_path_2):
             for line1, line2 in zip_longest(counts1, counts2, fillvalue=""):
                 print(line1.ljust(20), line2)
 
-            # plot histograms
-            chars1 = [c.split(":")[0] for c in counts1]
-            chars2 = [c.split(":")[0] for c in counts2]
-            all_chars = sorted(set(chars1) | set(chars2))
-            counts1_dict = dict([c.split(":") for c in counts1])
-            counts2_dict = dict([c.split(":") for c in counts2])
-            counts1_arr = np.array([int(counts1_dict.get(c, 0)) for c in all_chars])
-            counts2_arr = np.array([int(counts2_dict.get(c, 0)) for c in all_chars])
+            # # plot histograms
+            # chars1 = [c.split(":")[0] for c in counts1]
+            # chars2 = [c.split(":")[0] for c in counts2]
+            # all_chars = sorted(set(chars1) | set(chars2))
+            # counts1_dict = dict([c.split(":") for c in counts1])
+            # counts2_dict = dict([c.split(":") for c in counts2])
+            # counts1_arr = np.array([int(counts1_dict.get(c, 0)) for c in all_chars])
+            # counts2_arr = np.array([int(counts2_dict.get(c, 0)) for c in all_chars])
 
-            plt.figure(figsize=(10, 5))
-            plt.bar(all_chars, counts1_arr, label=file_path_1, alpha=0.5)
-            plt.bar(all_chars, counts2_arr, label=file_path_2, alpha=0.5)
-            plt.xticks(all_chars)
-            plt.xlabel("Characters")
-            plt.ylabel("Counts")
-            plt.title(f"Character counts for row {row_id}")
-            plt.legend()
-            plt.show()
+            # plt.figure(figsize=(10, 5))
+            # plt.bar(all_chars, counts1_arr, label=file_path_1, alpha=0.5)
+            # plt.bar(all_chars, counts2_arr, label=file_path_2, alpha=0.5)
+            # plt.xticks(all_chars)
+            # plt.xlabel("Characters")
+            # plt.ylabel("Counts")
+            # plt.title(f"Character counts for row {row_id}")
+            # plt.legend()
+            # plt.show()
 
         else:
             print(f"Row {row_id} has identical character counts in both files ")
     sum_smape = sum(smape_values)
     total_smape_elems = len(smape_values)
     total_smape_avg_score = sum_smape / total_smape_elems
-    print("SMAPE", total_smape_avg_score)
+    print(f"SMAPE: {total_smape_avg_score:.2f}%")
 
 
 def print_individual_count(results):
