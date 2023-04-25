@@ -1,6 +1,6 @@
 import re
 import pandas as pd
-import cv2 as cv
+from cv2 import cv2 as cv
 from matplotlib import pyplot as plt
 import numpy as np
 import pytesseract
@@ -17,10 +17,12 @@ def get_grayscale(image):
 
 
 def thresholding(image):
+    """
     # Apply binary thresholding using Otsu's method to the input image and return the thresholded image
     # The parameters 0 and 255 set the pixel intensity values for the black and white pixels, respectively
     # cv.THRESH_BINARY specifies that a binary thresholding is used
     # cv.THRESH_OTSU indicates that Otsu's method is used to determine the threshold value automatically
+    # """
     thresholded_image = cv.threshold(image, 0, 255, cv.THRESH_BINARY + cv.THRESH_OTSU)[
         1
     ]
@@ -153,11 +155,17 @@ def preprocess_image(image):
         numpy.ndarray: The preprocessed image as a binary NumPy array.
     """
 
+    
     # Resize the image to a fixed size of 400x400 pixels.
     image = cv.resize(image, (400, 400))
 
     # Convert the image to grayscale.
     gray = cv.cvtColor(np.array(image), cv.COLOR_BGR2GRAY)
+    
+    # Define gamma values
+    gamma = 1.5
+    # Generate the lookup table
+    table = np.array([((i / 255.0) ** gamma) * 255 for i in np.arange(0, 256)]).astype("uint8")
 
     # Apply Otsu's thresholding to the grayscale image to obtain a binary image.
     thresh = cv.threshold(gray, 0, 255, cv.THRESH_BINARY | cv.THRESH_OTSU)[1]
