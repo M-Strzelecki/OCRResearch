@@ -1,6 +1,6 @@
 import re
 import pandas as pd
-from cv2 import cv2 as cv
+import cv2 as cv
 from matplotlib import pyplot as plt
 import numpy as np
 import pytesseract
@@ -166,7 +166,7 @@ def preprocess_image(image):
     gamma = 1.5
     # Generate the lookup table
     table = np.array([((i / 255.0) ** gamma) * 255 for i in np.arange(0, 256)]).astype("uint8")
-
+    gray = cv.LUT(gray,table)
     # Apply Otsu's thresholding to the grayscale image to obtain a binary image.
     thresh = cv.threshold(gray, 0, 255, cv.THRESH_BINARY | cv.THRESH_OTSU)[1]
 
