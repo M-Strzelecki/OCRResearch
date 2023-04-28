@@ -162,12 +162,12 @@ def preprocess_image(image):
     # Convert the image to grayscale.
     gray = cv.cvtColor(np.array(image), cv.COLOR_BGR2GRAY)
     
-    # # Define gamma values
-    # gamma = 1.5
-    # # Generate the lookup table
-    # table = np.array([((i / 255.0) ** gamma) * 255 for i in np.arange(0, 256)]).astype("uint8")
-    # # Applying lookup table
-    # gray = cv.LUT(gray,table)
+    # Define gamma values
+    gamma = 1.5
+    # Generate the lookup table
+    table = np.array([((i / 255.0) ** gamma) * 255 for i in np.arange(0, 256)]).astype("uint8")
+    # Applying lookup table
+    gray = cv.LUT(gray,table)
     # Apply Binary Inverse thresholding to the grayscale image to obtain a binary image.
     thresh = cv.threshold(gray, 120, 255, cv.THRESH_BINARY_INV)[1]
 
