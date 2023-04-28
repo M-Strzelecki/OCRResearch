@@ -1,7 +1,7 @@
 import preprocessing as prep
 
 hard = "hardfulltext.csv"
-sample = "fulltext_v1_3.csv"
+sample = "fulltext_v1_4.csv"
 
 result = prep.count_chars_in_file("hardfulltext.csv")
 # prep.print_individual_count(result)

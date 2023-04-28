@@ -163,7 +163,7 @@ def preprocess_image(image):
     gray = cv.cvtColor(np.array(image), cv.COLOR_BGR2GRAY)
     
     # Define gamma values
-    gamma = 1.5
+    gamma = 2
     # Generate the lookup table
     table = np.array([((i / 255.0) ** gamma) * 255 for i in np.arange(0, 256)]).astype("uint8")
     # Applying lookup table

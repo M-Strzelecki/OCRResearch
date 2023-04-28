@@ -70,8 +70,8 @@ print(f"Total number of characters: {character_count}")
 
 
 input_folder = "./sample_images"
-output_file = "output_v1_3.csv"
-full_text = "fulltext_v1_3.csv"
+output_file = "output_v1_4.csv"
+full_text = "fulltext_v1_4.csv"
 hard = pd.read_csv("hardfulltext.csv")
 
 prep.process_images(input_folder, output_file)
