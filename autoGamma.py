@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-
+import pytesseract
 
 def gamma_correction(image, gamma=1.0):
     # apply histogram equalization to improve contrast
@@ -14,7 +14,7 @@ def gamma_correction(image, gamma=1.0):
     return cv2.LUT(image, table)
 
 
-def automatic_gamma_correction(image, percentile=0.1):
+def automatic_gamma_correction(image, percentile=0.5):
     # convert the image to grayscale
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
@@ -47,10 +47,10 @@ def adaptive_gamma_correction(image, block_size=32, gamma=1.0):
     blocks = []
     for i in range(0, gray.shape[0], block_size):
         for j in range(0, gray.shape[1], block_size):
-            block = gray[i : i + block_size, j : j + block_size]
+            block = gray[i:i+block_size, j:j+block_size]
             blocks.append(block)
 
-    # Calculate the gamma-corrected image by applying adaptive gamma correction to each block
+    # Calculate the gamma-corrected image block by block
     gamma_corrected_blocks = []
     for block in blocks:
         # Calculate the histogram of the block
@@ -64,11 +64,11 @@ def adaptive_gamma_correction(image, block_size=32, gamma=1.0):
 
         # Calculate the gamma-corrected lookup table for the block
         inv_gamma = 1.0 / gamma
-        table = np.array(
-            [((i / 255.0) ** inv_gamma) * 255 for i in np.arange(0, 256)]
-        ).astype("uint8")
+        table = np.array([((i / 255.0) ** inv_gamma) * 255
+                          for i in np.arange(0, 256)]).astype("uint8")
 
-        # Apply the gamma-corrected lookup table to the block
+        # Apply the gamma-corrected lookup table to the block, weighted by the probability of each intensity value
+        weighted_table = cv2.LUT(table, cdf_normalized * 255.0)
         gamma_corrected_block = cv2.LUT(block, table)
 
         # Add the gamma-corrected block to the list of gamma-corrected blocks
@@ -80,15 +80,13 @@ def adaptive_gamma_correction(image, block_size=32, gamma=1.0):
     for i in range(0, gray.shape[0], block_size):
         for j in range(0, gray.shape[1], block_size):
             gamma_corrected_block = gamma_corrected_blocks[block_index]
-            gamma_corrected_image[
-                i : i + block_size, j : j + block_size
-            ] = gamma_corrected_block
+            gamma_corrected_image[i:i+block_size, j:j+block_size] = gamma_corrected_block
             block_index += 1
 
     return gamma_corrected_image
 
 
-def adaptive_gamma_correction_with_otsu(image, block_size=32, gamma=1.0):
+def adaptive_gamma_correction_with_otsu(image, block_size=16, gamma=1.0):
     # Convert the image to grayscale
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
@@ -234,12 +232,22 @@ img = cv2.imread("./sample_images/nf131.jpg")
 
 adapt_otsu = adaptive_gamma_correction_with_otsu(img)
 cv2.imshow("New Adapt with Otsu", adapt_otsu)
+text = pytesseract.image_to_string(adapt_otsu)
+print(text.lower())
 
 adapt_otsu_clarity = adaptive_gamma_correction_with_otsu_clarity(img)
 cv2.imshow("New Adapt with Otsu+Clarity", adapt_otsu_clarity)
 
 auto_gama = automatic_gamma_correction(img)
 cv2.imshow("Auto Gamma Corrected Image", auto_gama)
+# Define gamma values
+gamma = 1.5
+# Generate the lookup table
+table = np.array([((i / 255.0) ** gamma) * 255 for i in np.arange(0, 256)]).astype("uint8")
+# Applying lookup table
+basicgamma = cv2.LUT(img,table)
+cv2.imshow("Basic Gamma Corrected Image", basicgamma)
+
 auto_gama_gray = cv2.cvtColor(auto_gama, cv2.COLOR_BGR2GRAY)
 thresh2 = cv2.threshold(auto_gama_gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
 cv2.imshow("Auto Threshed Image", thresh2)

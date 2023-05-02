@@ -143,7 +143,7 @@ def returnoutput(details):
 
 "-------------------------------------------------------------------"
 
-
+"------------------EDIT FOR updatingPipeLine------------------------"
 def preprocess_image(image):
     """
     Preprocesses an input image for OCR.
@@ -156,18 +156,10 @@ def preprocess_image(image):
     """
 
     
-    # Resize the image to a fixed size of 400x400 pixels.
+    # Resize the image to a fixed size of 400x400 pixels
     image = cv.resize(image, (400, 400))
 
-    # Convert the image to grayscale.
-    gray = cv.cvtColor(np.array(image), cv.COLOR_BGR2GRAY)
-    
-    # Define gamma values
-    gamma = 2
-    # Generate the lookup table
-    table = np.array([((i / 255.0) ** gamma) * 255 for i in np.arange(0, 256)]).astype("uint8")
-    # Applying lookup table
-    gray = cv.LUT(gray,table)
+    gray = adaptive_gamma_correction(image)
     # Apply Binary Inverse thresholding to the grayscale image to obtain a binary image.
     thresh = cv.threshold(gray, 120, 255, cv.THRESH_BINARY_INV)[1]
 
@@ -582,4 +574,104 @@ def print_individual_count(results):
         print()
 
 
-"------------------------TESTING-----------------------"
+"------------------------ADAPTIVE GAMMA CORRECTION-----------------------"
+
+def adaptive_gamma_correction(image, block_size=64, gamma=1.0):
+    # Convert the image to grayscale
+    gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+
+    # Divide the image into blocks
+    blocks = []
+    for i in range(0, gray.shape[0], block_size):
+        for j in range(0, gray.shape[1], block_size):
+            block = gray[i:i+block_size, j:j+block_size]
+            blocks.append(block)
+
+    # Calculate the gamma-corrected image block by block
+    gamma_corrected_blocks = []
+    for block in blocks:
+        # Calculate the histogram of the block
+        hist, _ = np.histogram(block, bins=256, range=(0, 256))
+
+        # Calculate the cumulative distribution function of the block
+        cdf = hist.cumsum()
+
+        # Normalize the cumulative distribution function
+        cdf_normalized = cdf / cdf[-1]
+
+        # Calculate the gamma-corrected lookup table for the block
+        inv_gamma = 1.0 / gamma
+        table = np.array([((i / 255.0) ** inv_gamma) * 255
+                          for i in np.arange(0, 256)]).astype("uint8")
+
+        # Apply the gamma-corrected lookup table to the block, weighted by the probability of each intensity value
+        weighted_table = cv.LUT(table, cdf_normalized * 255.0)
+        gamma_corrected_block = cv.LUT(block, table)
+
+        # Add the gamma-corrected block to the list of gamma-corrected blocks
+        gamma_corrected_blocks.append(gamma_corrected_block)
+
+    # Assemble the gamma-corrected image by merging the gamma-corrected blocks
+    gamma_corrected_image = np.zeros_like(gray)
+    block_index = 0
+    for i in range(0, gray.shape[0], block_size):
+        for j in range(0, gray.shape[1], block_size):
+            gamma_corrected_block = gamma_corrected_blocks[block_index]
+            gamma_corrected_image[i:i+block_size, j:j+block_size] = gamma_corrected_block
+            block_index += 1
+
+    return gamma_corrected_image
+
+
+def adaptive_gamma_correction_with_otsu(image, block_size=16, gamma=1.0):
+    # Convert the image to grayscale
+    gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+
+    # Divide the image into blocks
+    blocks = []
+    for i in range(0, gray.shape[0], block_size):
+        for j in range(0, gray.shape[1], block_size):
+            block = gray[i : i + block_size, j : j + block_size]
+            blocks.append(block)
+
+    # Apply Otsu's thresholding to each block and calculate the gamma-corrected image
+    gamma_corrected_blocks = []
+    for block in blocks:
+        # Apply Otsu's thresholding to the block
+        _, thresholded_block = cv.threshold(
+            block, 0, 255, cv.THRESH_BINARY + cv.THRESH_OTSU
+        )
+
+        # Calculate the histogram of the thresholded block
+        hist, _ = np.histogram(thresholded_block, bins=256, range=(0, 256))
+
+        # Calculate the cumulative distribution function of the thresholded block
+        cdf = hist.cumsum()
+
+        # Normalize the cumulative distribution function
+        cdf_normalized = cdf / cdf[-1]
+
+        # Calculate the gamma-corrected lookup table for the thresholded block
+        inv_gamma = 1.0 / gamma
+        table = np.array(
+            [((i / 255.0) ** inv_gamma) * 255 for i in np.arange(0, 256)]
+        ).astype("uint8")
+
+        # Apply the gamma-corrected lookup table to the thresholded block
+        gamma_corrected_block = cv.LUT(thresholded_block, table)
+
+        # Add the gamma-corrected block to the list of gamma-corrected blocks
+        gamma_corrected_blocks.append(gamma_corrected_block)
+
+    # Assemble the gamma-corrected image by merging the gamma-corrected blocks
+    gamma_corrected_image = np.zeros_like(gray)
+    block_index = 0
+    for i in range(0, gray.shape[0], block_size):
+        for j in range(0, gray.shape[1], block_size):
+            gamma_corrected_block = gamma_corrected_blocks[block_index]
+            gamma_corrected_image[
+                i : i + block_size, j : j + block_size
+            ] = gamma_corrected_block
+            block_index += 1
+
+    return gamma_corrected_image

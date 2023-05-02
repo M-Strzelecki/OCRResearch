@@ -9,10 +9,11 @@ from collections import Counter
 image = cv2.imread("./sample_images/nf90.jpg")
 image = cv2.resize(image, (400, 400))
 
-gray = cv2.cvtColor(np.array(image), cv2.COLOR_BGR2GRAY)
-
-thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
-
+# gray = cv2.cvtColor(np.array(image), cv2.COLOR_BGR2GRAY)
+adap_gama = prep.adaptive_gamma_correction_with_otsu(image)
+# cv2.imshow("adapt",adap_gama)
+thresh = cv2.threshold(adap_gama, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+# cv2.imshow("thresh", thresh)
 text = pytesseract.image_to_string(thresh)
 print(text.lower())
 
@@ -68,11 +69,13 @@ print(f"Protein: {protein}")
 character_count = prep.count_characters(text)
 print(f"Total number of characters: {character_count}")
 
-
 input_folder = "./sample_images"
-output_file = "output_v1_4.csv"
-full_text = "fulltext_v1_4.csv"
+output_file = "output_v2_1.csv"
+full_text = "fulltext_v2_1.csv"
 hard = pd.read_csv("hardfulltext.csv")
 
 prep.process_images(input_folder, output_file)
 prep.process_images_individual(input_folder, full_text)
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()
