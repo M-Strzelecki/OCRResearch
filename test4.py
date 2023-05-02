@@ -71,7 +71,7 @@ for blockSize in blockSizes:
                 break
     # If the performance is within 10% of the target performance, stop the loop and apply adaptive thresholding with the best parameters
     if performance >= targetPerformance * (1 - tolerance):
-        break        
+        break
 # Apply adaptive thresholding with the best parameters
 thresh = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, bestBlockSize, bestC)
 
