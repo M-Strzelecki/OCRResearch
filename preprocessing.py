@@ -493,6 +493,7 @@ def count_chars_in_file(file_path):
 
 
 def compare_individual_csv_files(file_path_1, file_path_2):
+
     # count characters in each file
     file1_counts = count_chars_in_file(file_path_1)
     file2_counts = count_chars_in_file(file_path_2)
@@ -524,11 +525,6 @@ def compare_individual_csv_files(file_path_1, file_path_2):
         mae = mean_absolute_error(counts1_list, counts2_list)
         s_mape = smape(counts1_arr, counts2_arr)
         smape_values.append(s_mape)
-        # # print(counts1_dict)
-        # print(counts1_arr)
-        # print("---------------------------------")
-        # # print(counts2_dict)
-        # print(counts2_arr)
 
         # compare character counts for this row
         if file1_counts[row_id] != file2_counts[row_id]:
@@ -565,6 +561,25 @@ def compare_individual_csv_files(file_path_1, file_path_2):
     total_smape_elems = len(smape_values)
     total_smape_avg_score = sum_smape / total_smape_elems
     print(f"SMAPE: {total_smape_avg_score:.2f}%")
+
+    # Add a new column with the SMAPE values to the existing CSV file.
+    with open(file_path_2, mode='r') as csvfile:
+        reader = csv.reader(csvfile)
+        header = next(reader)  # Skip the header row.
+        header.append('SMAPE')
+        rows = []
+        for row in reader:
+            if row[0] in file2_counts.keys():
+                s_mape = smape_values[sorted_row_ids.index(row[0])]
+                row.append(str(s_mape))
+            else:
+                row.append('')
+            rows.append(row)
+
+    with open(file_path_2, mode='w', newline='') as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow(header)
+        writer.writerows(rows)
 
 
 def print_individual_count(results):
@@ -675,3 +690,23 @@ def adaptive_gamma_correction_with_otsu(image, block_size=16, gamma=1.0):
             block_index += 1
 
     return gamma_corrected_image
+
+"Convert String to Dictionary"
+def string_to_dict(string):
+    # initialize dictionary to store character counts
+    char_counts = {}
+
+    # iterate over each character in the string
+    for char in string:
+        # check if character is a-z, 0-9 or full stop
+        if char.isalpha() and char.islower():
+            char_counts[char] = char_counts.get(char, 0) + 1
+        elif char.isdigit():
+            char_counts[char] = char_counts.get(char, 0) + 1
+        elif char == ".":
+            char_counts[char] = char_counts.get(char, 0) + 1
+    
+    # sort dictionary by key
+    sorted_counts = dict(sorted(char_counts.items()))
+
+    return sorted_counts
