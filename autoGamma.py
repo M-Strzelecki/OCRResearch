@@ -140,7 +140,7 @@ def adaptive_gamma_correction_with_otsu(image, block_size=16, gamma=1.0):
     return gamma_corrected_image
 
 
-def adaptive_gamma_correction_with_otsu_clarity(image, block_size=64, gamma=1.5):
+def adaptive_gamma_correction_with_otsu_clarity(image, block_size=128, gamma=1.5, sharpness=0.8):
     # Convert the image to grayscale
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
@@ -181,8 +181,12 @@ def adaptive_gamma_correction_with_otsu_clarity(image, block_size=64, gamma=1.5)
         # Apply the gamma-corrected lookup table to the opened block
         gamma_corrected_block = cv2.LUT(opened_block, table)
 
+        # Sharpen the gamma-corrected block
+        sharpen_kernel = np.array([[-1,-1,-1], [-1,9,-1], [-1,-1,-1]]) * sharpness
+        sharpened_block = cv2.filter2D(gamma_corrected_block, -1, sharpen_kernel)
+
         # Add the gamma-corrected block to the list of gamma-corrected blocks
-        gamma_corrected_blocks.append(gamma_corrected_block)
+        gamma_corrected_blocks.append(sharpened_block)
 
     # Assemble the gamma-corrected image by merging the gamma-corrected blocks
     gamma_corrected_image = np.zeros_like(gray)
@@ -197,12 +201,35 @@ def adaptive_gamma_correction_with_otsu_clarity(image, block_size=64, gamma=1.5)
 
     return gamma_corrected_image
 
+def sharpen_text_regions(image, mask):
+    # convert image to grayscale
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    # threshold the image to binary
+    _, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+    # apply morphology operations to remove noise and fill in gaps
+    # kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+    kernel = np.array([[-1, -1, -1], [-1, 10, -1], [-1, -1, -1]])
+    opening = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel, iterations=1)
+    # find contours in the image
+    contours, _ = cv2.findContours(opening, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    # create a mask for the text regions
+    text_mask = np.zeros_like(opening)
+    for contour in contours:
+        if cv2.contourArea(contour) > 100:
+            x, y, w, h = cv2.boundingRect(contour)
+            cv2.rectangle(text_mask, (x, y), (x + w, y + h), 255, -1)
+    # apply sharpening to the text regions
+    sharpened = cv2.filter2D(image, -1, np.array([[-1, -1, -1], [-1, 9, -1], [-1, -1, -1]]))
+    # result = cv2.addWeighted(image, 1.5, sharpened, -0.5, 0)
+    result = cv2.addWeighted(image, 1.8, sharpened, -2.0, 0)
+    result[text_mask == 0] = image[text_mask == 0]
+    return result
 
 # Load the image
 img = cv2.imread("./sample_images/nf131.jpg")
 
 # # Calculate the mean brightness of the image
-# gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 # mean_brightness = np.mean(gray)
 # print(mean_brightness)
 # # Adjust the gamma level based on the brightness
@@ -256,6 +283,15 @@ adap_gama = adaptive_gamma_correction(img)
 # adap_gama_gray = cv2.cvtColor(adap_gama, cv2.COLOR_BGR2GRAY)
 thresh2 = cv2.threshold(adap_gama, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
 cv2.imshow("Adapt Threshed Image", thresh2)
+
+mask = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
+test = sharpen_text_regions(img, mask)
+cv2.imshow("test", test)
+test2 = adaptive_gamma_correction(test)
+test2 = cv2.threshold(test2, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
+cv2.imshow("test2", test2)
+pyt = pytesseract.image_to_string(test2)
+print(pyt)
 
 cv2.waitKey(0)
 cv2.destroyAllWindows()

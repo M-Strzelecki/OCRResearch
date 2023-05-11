@@ -9,7 +9,7 @@ import csv
 import os
 from itertools import zip_longest
 from sklearn.metrics import mean_absolute_percentage_error, mean_absolute_error
-
+from PIL import Image
 
 # function to convert image to grayscale
 def get_grayscale(image):
@@ -710,3 +710,94 @@ def string_to_dict(string):
     sorted_counts = dict(sorted(char_counts.items()))
 
     return sorted_counts
+
+"-------resize image to keep ratio of size-----------"
+def resize_image(image):
+    # Get the height and width of the image
+    height, width = image.shape[:2]
+
+    # Determine the scaling factor for the new image size
+    ratio = 1
+    if height > width and height > 500:
+        ratio = 500.0 / height
+    elif width > height and width > 500:
+        ratio = 500.0 / width
+    elif height == width and height > 500:
+        ratio = 500.0 / height
+
+    # Calculate the new image size with the scaling factor
+    new_size = (int(width * ratio), int(height * ratio))
+
+    # Resize the image with the new size
+    resized_image = cv.resize(image, new_size)
+
+    # If the image is still too small, pad it with black pixels
+    if new_size[0] < 400 or new_size[1] < 400:
+        top = max((400 - new_size[1]) // 2, 0)
+        bottom = max(400 - new_size[1] - top, 0)
+        left = max((400 - new_size[0]) // 2, 0)
+        right = max(400 - new_size[0] - left, 0)
+        resized_image = cv.copyMakeBorder(resized_image, top, bottom, left, right, cv.BORDER_CONSTANT, value=[0, 0, 0])
+
+    return resized_image
+
+def resize_image2(image):
+    # Get the current width and height of the image
+    height, width, _ = image.shape
+
+    # Calculate the new width and height while maintaining the aspect ratio
+    if width > height:
+        new_width = max(min(width, 500), 400)
+        new_height = int(new_width * 2 / 3)
+    else:
+        new_height = max(min(height, 500), 400)
+        new_width = int(new_height * 3 / 2)
+
+    # Resize the image using the calculated dimensions
+    resized_img = cv.resize(image, (new_width, new_height), interpolation=cv.INTER_AREA)
+
+    # Return the resized image
+    return resized_img
+
+def deskew_image(image):
+    # Convert the image to grayscale
+    gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+
+    # Apply binary thresholding to the image
+    _, thresh = cv.threshold(gray, 0, 255, cv.THRESH_BINARY_INV+cv.THRESH_OTSU)
+
+    # Find contours in the image
+    contours, _ = cv.findContours(thresh, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
+
+    # Find the orientation angle of the text
+    angle = 0
+    max_text_width = 0
+    for contour in contours:
+        # Get the bounding rectangle of the contour
+        x, y, w, h = cv.boundingRect(contour)
+
+        # Skip small contours to avoid noise
+        if w < 10 or h < 10:
+            continue
+
+        # Calculate the aspect ratio of the contour
+        aspect_ratio = w / h
+
+        # If the aspect ratio is close to 1, the text is likely oriented horizontally
+        if aspect_ratio > 0.9 and aspect_ratio < 1.1:
+            angle = 0
+            break
+        else:
+            # Otherwise, the text is likely oriented vertically
+            text_width = max(w, h)
+            if text_width > max_text_width:
+                max_text_width = text_width
+                rect = cv.minAreaRect(contour)
+                angle = rect[-1] + 90
+
+    # Rotate the image to make the text horizontal
+    height, width = image.shape[:2]
+    rotation_matrix = cv.getRotationMatrix2D((width/2, height/2), angle, 1)
+    rotated_image = cv.warpAffine(image, rotation_matrix, (width, height), flags=cv.INTER_CUBIC, borderMode=cv.BORDER_REPLICATE)
+
+    return rotated_image
