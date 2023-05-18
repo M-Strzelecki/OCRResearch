@@ -3,7 +3,7 @@
 ## Research on implementing OCR to extract data from nutritional labels
 
 This research is a starting point for my implementation of OCR to gather data from images of food labels. In this project we will examine the data from the food labels and extract it from the images. Project contains the following:
-
+<a href='/readmefiles/Dietary AI Assistant.pdf'>
 * Basic Pipeline to extract data from the food labels
 * Testing different types of preprocessing such as:
     * Gamma
