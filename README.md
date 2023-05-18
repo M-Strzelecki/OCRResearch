@@ -16,9 +16,9 @@ This research is a starting point for my implementation of OCR to gather data fr
 * Testing automation to choose best parameters for gamma and thresholding 
 
 ## Requirements
+Python 3 or newer with the following packages installed
 | Package          | Version   |
 | ---------------- | --------- |
-| Python           | 3.10.10   |
 | matplotlib       | 3.7.1     |
 | numpy            | 1.24.2    |
 | pandas           | 2.0.0     |
@@ -26,3 +26,11 @@ This research is a starting point for my implementation of OCR to gather data fr
 | scikit-learn     | 1.2.2     |
 | opencv-python    | 4.7.0.72  |
 
+## Use
+### basicPipeline.py
+```python
+input_folder = "./sample_images"
+output_file = "./nutrivaluesfrompipeline/output.csv"
+full_text = "./fulltextfrompipeline/fulltext.csv"
+hard = pd.read_csv("./hardcodednutrilabels/hardfulltext.csv")
+```
