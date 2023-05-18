@@ -16,3 +16,12 @@ This research is a starting point for my implementation of OCR to gather data fr
 * Testing automation to choose best parameters for gamma and thresholding 
 
 ## Requirements
+Package                  Version
+------------------------ -----------
+Python                   3.10.10
+matplotlib               3.7.1
+numpy                    1.24.2
+pandas                   2.0.0
+pytesseract              0.3.10
+scikit-learn             1.2.2
+opencv-python            4.7.0.72

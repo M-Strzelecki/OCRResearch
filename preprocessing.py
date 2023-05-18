@@ -9,7 +9,7 @@ import csv
 import os
 from itertools import zip_longest
 from sklearn.metrics import mean_absolute_percentage_error, mean_absolute_error
-from PIL import Image
+
 
 # function to convert image to grayscale
 def get_grayscale(image):
