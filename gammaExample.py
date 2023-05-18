@@ -1,7 +1,9 @@
 import cv2
 import numpy as np
 from matplotlib import pyplot as plt
-
+"""
+Just a code used to generate some examples of different gamma levels for presentation
+"""
 # Load the image
 img = cv2.imread("./sample_images/nf131.jpg")
 img = cv2.resize(img, (400, 400))

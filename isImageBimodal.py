@@ -3,7 +3,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.signal import find_peaks
 import os
-
+"""
+Checking if the image histogram is bimodal or not
+"""
 def is_bimodal(image_path, peak_height_frac=0.2):
     # Load the image in grayscale
     img = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)

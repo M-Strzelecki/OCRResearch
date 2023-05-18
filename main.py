@@ -29,9 +29,8 @@ total_boxes = len(details['text'])
 for sequence_number in range(total_boxes):
     if int(details['conf'][sequence_number]) >30:
         (x,y,w,h) = (details['left'][sequence_number], details['top'][sequence_number],
-                     details['width'][sequence_number], details['height'][sequence_number])
-        threshold_img = cv2.rectangle(threshold_img, (x,y), (x + w, y + h),
-                                      (0, 255, 0), 2)
+            details['width'][sequence_number], details['height'][sequence_number])
+        threshold_img = cv2.rectangle(threshold_img, (x,y), (x + w, y + h),(0, 255, 0), 2)
 
 cv2.imshow('captured text', threshold_img)
 cv2.waitKey(0)

@@ -1,10 +1,9 @@
-# Python program to illustrate
-# simple thresholding type on an image
-
-# organizing imports
 import cv2
 import numpy as np
 
+"""
+Simple representation of different types of thresholding
+"""
 # path to input image is specified and
 # image is loaded with imread command
 image1 = cv2.imread("./sample_images/nf37.jpg")

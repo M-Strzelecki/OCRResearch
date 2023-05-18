@@ -70,9 +70,9 @@ print(f"Total number of characters: {character_count}")
 
 
 input_folder = "./sample_images"
-output_file = "output.csv"
-full_text = "fulltext.csv"
-hard = pd.read_csv("hardfulltext.csv")
+output_file = "./nutrivaluesfrompipeline/output.csv"
+full_text = "./fulltextfrompipeline/fulltext.csv"
+hard = pd.read_csv("./hardcodednutrilabels/hardfulltext.csv")
 
 prep.process_images(input_folder, output_file)
 prep.process_images_individual(input_folder, full_text)

@@ -560,21 +560,25 @@ def compare_individual_csv_files(file_path_1, file_path_2):
     sum_smape = sum(smape_values)
     total_smape_elems = len(smape_values)
     total_smape_avg_score = sum_smape / total_smape_elems
-    print(f"SMAPE: {total_smape_avg_score:.2f}%")
+    print(f"Average SMAPE: {total_smape_avg_score:.2f}%")
 
-    # Add a new column with the SMAPE values to the existing CSV file.
+    # Check if 'SMAPE' column already exists in the existing CSV file.
     with open(file_path_2, mode='r') as csvfile:
         reader = csv.reader(csvfile)
         header = next(reader)  # Skip the header row.
-        header.append('SMAPE')
-        rows = []
-        for row in reader:
-            if row[0] in file2_counts.keys():
-                s_mape = smape_values[sorted_row_ids.index(row[0])]
-                row.append(str(s_mape))
-            else:
-                row.append('')
-            rows.append(row)
+        if 'SMAPE' not in header:
+            header.append('SMAPE')
+            rows = []
+            for row in reader:
+                if row[0] in file2_counts.keys():
+                    s_mape = smape_values[sorted_row_ids.index(row[0])]
+                    row.append(str(s_mape))
+                else:
+                    row.append('')
+                rows.append(row)
+        else:
+            # 'SMAPE' column already exists, no need to update.
+            return
 
     with open(file_path_2, mode='w', newline='') as csvfile:
         writer = csv.writer(csvfile)

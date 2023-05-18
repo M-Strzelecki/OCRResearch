@@ -1,0 +1,12 @@
+id,Character Count,per,energy,carbohydrates,sugar,natural fruit sugar,fiber,cholesterol,fat,saturated fat,mono fat,poly fat,trans fat,protein,sodium,calcium,vit a,vit c,iron,potassium
+nf131,228,100g,900kcal,,,,,,,21g,37g,42g,,,,,,,,
+nf105,141,100g,524kcal,62g,53g,,,,28g,7.84g,,,,6g,,,,,,
+nf90,347,20g,97.2kcal,9g,4g,,,,3.2g,2.7g,0.9g,0.15g,,2.4g,,100mg,,,,
+nf97,348,100g,357kcal,57g,46g,,,65mg,13g,5.36g,4.65g,1.98g,0g,3g,147mg,19mg,488iu,3mg,.3mg,
+nf54,209,100g,470kcal,63g,25g,,,,21g,9.4g,"4,7g",1.3g,,6.4g,,,,,,
+nf47,368,58g,220kcal,21g,,,,,12g,1g,,,,8g,330mg,38mg,,,.9mg,182mg
+nf79,99,100g,489kcal,65.1g,38.4g,,,,21.4g,,,,,8.9g,,,,,,
+nf37,174,100ml,53kcal,13.4g,7.4g,6g,,,,,,,,.2g,,7mg,,18mg,.25mg,
+nf65,209,100g,406.6kcal,89.11g,,,3.91g,,1.5g,,,,,7.6g,,,,,,
+nf80,282,100g,502kcal,67.2g,22.4g,,,,22.8g,14.4g,6.6g,1.9g,.2g,6.9g,,,,,,
+nf157,171,100g,469.5g,71g,3.5g,,,,17.5g,8g,,,,7g,,,,,,

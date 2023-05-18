@@ -1,7 +1,9 @@
 import cv2
 import numpy as np
 import pytesseract
-
+"""
+Testing different ways to automatically correct the gamma values of an image
+"""
 def gamma_correction(image, gamma=1.0):
     # apply histogram equalization to improve contrast
     image = cv2.equalizeHist(image)
