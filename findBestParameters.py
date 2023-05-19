@@ -17,7 +17,7 @@ images_folder = "./sample_images/"
 output_csv_file = './heatmapdata/heatmap_data.csv'
 
 # Define the range of values to test for blockSize and C 
-blockSizes = range(11, 61, 2) # odd numbers
+blockSizes = range(11, 61, 2) # odd numbers, minimum starting range = 11
 Cs = range(0, 31, 2)
 # blockSizes = range(11, 21, 2) # odd numbers
 # Cs = range(0, 6, 2)
