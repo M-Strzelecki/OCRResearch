@@ -28,7 +28,7 @@ Python 3 or newer with the following packages installed
 
 ## Use
 ### ```basicPipeline.py```
-Basic project pipeline to get to separate csv file outputs used in later testing.
+Basic project pipeline to get two separate csv file outputs used in later testing.
 Here you will only need to change the file name for ``output_file`` and ``full_text`` every time to to make changes to preprocessing to save new results to a different file if you want to retain the results of previous tests. ``input_folder`` already has randomly selected sample images from [kaggle](https://www.kaggle.com/datasets/shensivam/nutritional-facts-from-food-label) unless you want to add your own, now you can just run the code.
 ```python
 input_folder = "./sample_images"
@@ -69,7 +69,7 @@ This python file contains a function to find best variables in this case ``bestB
 ```python
 cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, blockSize, C)
 ```
-In short the function loops through all sample images inside ``./sample_images`` peformingg similar image preprocessing as ``basicPipeLine.py``, calculating average SMAPE and storing it and current variables used from our variable range before moving onto the next value in our set range.
+In short the function loops through all sample images inside ``./sample_images`` peforming similar image preprocessing as ``basicPipeLine.py``, calculating average SMAPE and storing it and current variables used from our variable range before moving onto the next value in our set range.
 ```python
 # Define the range of values to test for blockSize and C 
 blockSizes = range(11, 61, 2) # odd numbers
@@ -77,6 +77,16 @@ Cs = range(0, 31, 2)
 ```
 Finally at the end it displays heatmap with the variables and coresponding average SMAPE score so that we can analize and choose the best parameters.
 <img alt="Heatmap" src="https://github.com/M-Strzelecki/OCRResearch/blob/updatingPipeline/heatmapdata/smape_heatmap%26timetaken.png"/>
-Currently they way function is set-up it takes about 40 minutes to run the test this time will either decrease or increase depending on the ammount of preprocessing steps done (can add more) to the images, the range of ``blockSizes`` and ``Cs`` (you can adjust) and the ammount of images inside ``./sample_images`` (if changed you need to remember like in previous functions the hard coded data set will also need adjustment). 
+Currently they way function is set-up it takes about 40 minutes to run the test, this time will either decrease or increase depending on the ammount of preprocessing steps done (can add more) to the images, the range of ``blockSizes`` and ``Cs`` (you can adjust) and the ammount of images inside ``./sample_images`` (if changed you need to remember like in previous functions the hard coded data set will also need adjustment). 
 This function is still very un-polished but could be used to test other image preprocessing fuctions from OpenCV library.
 ### Other Python Files
+Other **py** files such as ``isImageBimodal.py``, ``gammaExample.py``, ``otsuThresholdingTest.py`` and ``testingGammaThresholding`` were created for research or presentation purposes to get better visuals of different types of preprocesses and the differences when we adjust their variables. Lastly ``autoGamma.py`` was created to test different methods/ways I could adaptively adjust gamma levels, no mater what image was loaded in it wouldent be over or under exposed. All of these python files are quite simple and can be easily adjusted as the code is commented. Simply run as is to see the results and then enjoy changing the variables to get differnet outcomes.
+## Future Work/Plans
+As this was my first big research I made many mistakes that I have learned on. I really enjoyed the topis and plan on carrying it on in the near future to research and create new functions:
+   *New ways to preprocess images to increase OCR perofrmance
+   *More function to automate the choice of variables in OpenCV's image preprocessing functions
+   *Research ways to determine if image quality is to low to run the OCR engine on
+   *Create more advanced pipe line
+## License
+Copyright (c) 2023, Michal Strzelecki, Munster Technological University
+<br>All rights reserved.
