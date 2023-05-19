@@ -16,60 +16,6 @@ def get_grayscale(image):
     return cv.cvtColor(image, cv.COLOR_BGR2GRAY)
 
 
-def thresholding(image):
-    """
-    # Apply binary thresholding using Otsu's method to the input image and return the thresholded image
-    # The parameters 0 and 255 set the pixel intensity values for the black and white pixels, respectively
-    # cv.THRESH_BINARY specifies that a binary thresholding is used
-    # cv.THRESH_OTSU indicates that Otsu's method is used to determine the threshold value automatically
-    # """
-    thresholded_image = cv.threshold(image, 0, 255, cv.THRESH_BINARY + cv.THRESH_OTSU)[
-        1
-    ]
-
-    # Return the thresholded image
-    return thresholded_image
-
-
-# function to deskew the image
-def deskew(image):
-    coords = np.column_stack(np.where(image > 0))
-    angle = cv.minAreaRect(coords)[-1]
-    if angle < -45:
-        angle - (90 + angle)
-    else:
-        angle = -angle
-        (h, w) = image.shape[:2]
-        center = (w // 2, h // 2)
-        M = cv.getRotationMatrix2D(center, angle, 1.0)
-        rotated = cv.warpAffine(
-            image, M, (w, h), flags=cv.INTER_CUBIC, borderMode=cv.BORDER_REPLICATE
-        )
-        return rotated
-
-
-def match_template(image, template):
-    return cv.matchTemplate(image, template, cv.TM_CCOEFF_NORMED)
-
-
-# function to resize images
-def image_resize(image):
-    print("Original Size: ", image.shape)
-    image = cv.resize(image, (400, 400))
-    print("New Size: ", image.shape)
-    return image
-
-
-def noise_removal(image):
-    kernel = np.ones((1, 1), np.uint8)
-    image = cv.dilate(image, kernel, iterations=1)
-    kernel = np.ones((1, 1), np.uint8)
-    image = cv.erode(image, kernel, iterations=1)
-    image = cv.morphologyEx(image, cv.MORPH_CLOSE, kernel)
-    image = cv.medianBlur(image, 3)
-    return image
-
-
 def boundingboxes(image):
     # Define custom Tesseract configuration for recognizing text
     custom_config = r"--oem 3 --psm 11"
@@ -319,33 +265,6 @@ def read_csv_file(filename):
         # Sort the rows by the "id" column.
         sorted_rows = sorted(reader, key=lambda row: row["id"])
         return list(sorted_rows)
-
-
-# def compare_csv_files(file1, file2):
-#     # Read in the data from both CSV files
-#     data1 = read_csv_file(file1)
-#     data2 = read_csv_file(file2)
-
-#     # Sort the data by the "id" column
-#     data1 = sorted(data1, key=lambda row: row["id"])
-#     data2 = sorted(data2, key=lambda row: row["id"])
-
-#     # Compare the character counts for each row
-#     num_errors = 0
-#     for row1, row2 in zip(data1, data2):
-#         if row1["id"] != row2["id"]:
-#             raise ValueError("Mismatched rows between files")
-#         if row1["Character Count"] != row2["Character Count"]:
-#             print(
-#                 f"Character count mismatch for ID {row1['id']}: {row1['Character Count']} vs {row2['Character Count']}"
-#             )
-#             num_errors += 1
-
-#     # Print the final result
-#     if num_errors == 0:
-#         print("CSV files match")
-#     else:
-#         print(f"{num_errors} errors found in CSV files")
 
 
 def compare_csv_files(file1, file2):
@@ -620,8 +539,7 @@ def adaptive_gamma_correction(image, block_size=64, gamma=1.0):
 
         # Calculate the gamma-corrected lookup table for the block
         inv_gamma = 1.0 / gamma
-        table = np.array([((i / 255.0) ** inv_gamma) * 255
-                          for i in np.arange(0, 256)]).astype("uint8")
+        table = np.array([((i / 255.0) ** inv_gamma) * 255 for i in np.arange(0, 256)]).astype("uint8")
 
         # Apply the gamma-corrected lookup table to the block, weighted by the probability of each intensity value
         weighted_table = cv.LUT(table, cdf_normalized * 255.0)
@@ -714,94 +632,3 @@ def string_to_dict(string):
     sorted_counts = dict(sorted(char_counts.items()))
 
     return sorted_counts
-
-"-------resize image to keep ratio of size-----------"
-def resize_image(image):
-    # Get the height and width of the image
-    height, width = image.shape[:2]
-
-    # Determine the scaling factor for the new image size
-    ratio = 1
-    if height > width and height > 500:
-        ratio = 500.0 / height
-    elif width > height and width > 500:
-        ratio = 500.0 / width
-    elif height == width and height > 500:
-        ratio = 500.0 / height
-
-    # Calculate the new image size with the scaling factor
-    new_size = (int(width * ratio), int(height * ratio))
-
-    # Resize the image with the new size
-    resized_image = cv.resize(image, new_size)
-
-    # If the image is still too small, pad it with black pixels
-    if new_size[0] < 400 or new_size[1] < 400:
-        top = max((400 - new_size[1]) // 2, 0)
-        bottom = max(400 - new_size[1] - top, 0)
-        left = max((400 - new_size[0]) // 2, 0)
-        right = max(400 - new_size[0] - left, 0)
-        resized_image = cv.copyMakeBorder(resized_image, top, bottom, left, right, cv.BORDER_CONSTANT, value=[0, 0, 0])
-
-    return resized_image
-
-def resize_image2(image):
-    # Get the current width and height of the image
-    height, width, _ = image.shape
-
-    # Calculate the new width and height while maintaining the aspect ratio
-    if width > height:
-        new_width = max(min(width, 500), 400)
-        new_height = int(new_width * 2 / 3)
-    else:
-        new_height = max(min(height, 500), 400)
-        new_width = int(new_height * 3 / 2)
-
-    # Resize the image using the calculated dimensions
-    resized_img = cv.resize(image, (new_width, new_height), interpolation=cv.INTER_AREA)
-
-    # Return the resized image
-    return resized_img
-
-def deskew_image(image):
-    # Convert the image to grayscale
-    gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
-
-    # Apply binary thresholding to the image
-    _, thresh = cv.threshold(gray, 0, 255, cv.THRESH_BINARY_INV+cv.THRESH_OTSU)
-
-    # Find contours in the image
-    contours, _ = cv.findContours(thresh, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
-
-    # Find the orientation angle of the text
-    angle = 0
-    max_text_width = 0
-    for contour in contours:
-        # Get the bounding rectangle of the contour
-        x, y, w, h = cv.boundingRect(contour)
-
-        # Skip small contours to avoid noise
-        if w < 10 or h < 10:
-            continue
-
-        # Calculate the aspect ratio of the contour
-        aspect_ratio = w / h
-
-        # If the aspect ratio is close to 1, the text is likely oriented horizontally
-        if aspect_ratio > 0.9 and aspect_ratio < 1.1:
-            angle = 0
-            break
-        else:
-            # Otherwise, the text is likely oriented vertically
-            text_width = max(w, h)
-            if text_width > max_text_width:
-                max_text_width = text_width
-                rect = cv.minAreaRect(contour)
-                angle = rect[-1] + 90
-
-    # Rotate the image to make the text horizontal
-    height, width = image.shape[:2]
-    rotation_matrix = cv.getRotationMatrix2D((width/2, height/2), angle, 1)
-    rotated_image = cv.warpAffine(image, rotation_matrix, (width, height), flags=cv.INTER_CUBIC, borderMode=cv.BORDER_REPLICATE)
-
-    return rotated_image

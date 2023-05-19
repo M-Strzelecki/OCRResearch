@@ -29,7 +29,7 @@ Python 3 or newer with the following packages installed
 ## Use
 ### basicPipeline.py
 Basic project pipeline to get to separate csv file outputs used in later testing.
-Here you will need to only change the file name for ``output_file`` and ``full_text`` every time to to make changes to preprocessing to save new results to a different file if you want to retain the results of previous tests.
+Here you will only need to change the file name for ``output_file`` and ``full_text`` every time to to make changes to preprocessing to save new results to a different file if you want to retain the results of previous tests. ``input_folder`` already has sample images unless you want to add your own you can now just run the code.
 ```python
 input_folder = "./sample_images"
 output_file = "./nutrivaluesfrompipeline/output.csv"
