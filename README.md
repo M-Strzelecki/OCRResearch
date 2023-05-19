@@ -65,3 +65,18 @@ prep.compare_individual_csv_files(hard, sample)
 ```
 ``compareSMAPE.py`` very similarly to ``compareCharCount.py`` compares two csv files except now it uses the other csv file made from running our ``basicPipeline.py`` ``full_text = "./fulltextfrompipeline/fulltext.csv"`` in our case is **fulltext_v1_4.csv** and is compared up against **hardfulltext.csv** which is again hardcoded data set from our sample images. This returns the occurance of each individual character in the two csv files and calculates individual and and overall **SMAPE**(Symmetric mean absolute percentage error) and **MAE**(Mean absolute error) score, SMAPE being more accurate accuracy scoring method thus we will be focusing mostly on it.
 ### ```findBestPerformance.py```
+This python file contains a function to find best variables in this case ``bestBlockSize`` and ``bestC`` for an OpenCV function
+```python
+cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, blockSize, C)
+```
+In short the function loops through all sample images inside ``./sample_images`` peformingg similar image preprocessing as ``basicPipeLine.py``, calculating average SMAPE and storing it and current variables used from our variable range before moving onto the next value in our set range.
+```python
+# Define the range of values to test for blockSize and C 
+blockSizes = range(11, 61, 2) # odd numbers
+Cs = range(0, 31, 2)
+```
+Finally at the end it displays heatmap with the variables and coresponding average SMAPE score so that we can analize and choose the best parameters.
+<img alt="Heatmap" src="https://github.com/M-Strzelecki/OCRResearch/blob/updatingPipeline/heatmapdata/smape_heatmap%26timetaken.png"/>
+Currently they way function is set-up it takes about 40 minutes to run the test this time will either decrease or increase depending on the ammount of preprocessing steps done (can add more) to the images, the range of ``blockSizes`` and ``Cs`` (you can adjust) and the ammount of images inside ``./sample_images`` (if changed you need to remember like in previous functions the hard coded data set will also need adjustment). 
+This function is still very un-polished but could be used to test other image preprocessing fuctions from OpenCV library.
+### Other Python Files
